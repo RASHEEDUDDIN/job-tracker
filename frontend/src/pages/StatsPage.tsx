@@ -1,19 +1,35 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getStats, getWeeklyStats, getStaleApps } from "../api/applications";
 import type { AppStatus } from "../types";
 import { STATUS_COLORS } from "../types";
 
+interface Summary {
+  total_saved: number;
+  total_applied: number;
+  response_rate: string;
+  offer_rate: string;
+  by_status: Record<string, number>;
+}
+
+interface WeeklyEntry {
+  week: string;
+  count: number;
+}
+
+interface StaleApp {
+  id: string;
+  company: string;
+  role: string;
+  days_since_update: number;
+}
+
 export default function StatsPage() {
-  const [summary, setSummary] = useState<any>(null);
-  const [weekly, setWeekly] = useState<any[]>([]);
-  const [stale, setStale] = useState<any[]>([]);
+  const [summary, setSummary] = useState<Summary | null>(null);
+  const [weekly, setWeekly] = useState<WeeklyEntry[]>([]);
+  const [stale, setStale] = useState<StaleApp[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchAll();
-  }, []);
-
-  const fetchAll = async () => {
+  const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
       const [s, w, st] = await Promise.all([
@@ -28,7 +44,11 @@ export default function StatsPage() {
       console.error("Failed to fetch stats");
     }
     setLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
 
   if (loading) return (
     <div className="p-6 text-center text-gray-500">Loading stats...</div>
@@ -91,7 +111,7 @@ export default function StatsPage() {
                 <div className="flex-1 bg-gray-100 rounded-full h-4 overflow-hidden">
                   <div
                     className="bg-blue-500 h-4 rounded-full transition-all"
-                    style={{ width: `${Math.min((w.count / Math.max(...weekly.map((x: any) => x.count))) * 100, 100)}%` }}
+                    style={{ width: `${Math.min((w.count / Math.max(...weekly.map((x: WeeklyEntry) => x.count))) * 100, 100)}%` }}
                   />
                 </div>
                 <span className="text-xs font-medium w-6 text-right">{w.count}</span>
@@ -109,7 +129,7 @@ export default function StatsPage() {
           </h2>
           <p className="text-xs text-gray-500 mb-4">No updates in 7+ days — consider following up</p>
           <div className="space-y-2">
-            {stale.map((a: any) => (
+            {stale.map((a: StaleApp) => (
               <div key={a.id} className="flex items-center justify-between text-sm">
                 <span className="font-medium">{a.company}</span>
                 <span className="text-gray-500">{a.role}</span>
