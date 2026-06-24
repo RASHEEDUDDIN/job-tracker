@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { register as doRegister, login as doLogin } from "../api/auth";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -19,7 +19,8 @@ export default function RegisterPage() {
       const data = await doLogin(email, password);
       login(data.access_token, data.user_name);
       navigate("/search");
-    } catch (e: any) {
+    } catch (err) {
+      const e = err as { response?: { data?: { detail?: string } } };
       setError(e.response?.data?.detail || "Registration failed");
     }
     setLoading(false);
