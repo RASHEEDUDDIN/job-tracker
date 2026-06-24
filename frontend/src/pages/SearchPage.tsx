@@ -72,7 +72,7 @@ export default function SearchPage() {
         posted_at: job.posted_utc
       });
       setSaved(prev => new Set([...prev, job.id]));
-    } catch (err) {
+    } catch (err: unknown) {
       const e = err as { response?: { data?: { detail?: string } } };
       alert(e.response?.data?.detail || "Failed to save");
     }

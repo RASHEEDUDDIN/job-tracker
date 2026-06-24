@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { getApplications, updateApplication, deleteApplication } from "../api/applications";
 import type { Application, AppStatus } from "../types";
 import { STATUS_COLORS, ALL_STATUSES } from "../types";
@@ -11,20 +11,18 @@ export default function TrackerPage() {
   const [notes, setNotes] = useState<string>("");
   const [appliedDate, setAppliedDate] = useState<string>("");
 
-  const fetchApps = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await getApplications();
-      setApps(res.data);
-    } catch {
-      console.error("Failed to fetch applications");
-    }
-    setLoading(false);
-  }, []);
-
   useEffect(() => {
-    fetchApps();
-  }, [fetchApps]);
+    void (async () => {
+      setLoading(true);
+      try {
+        const res = await getApplications();
+        setApps(res.data);
+      } catch {
+        console.error("Failed to fetch applications");
+      }
+      setLoading(false);
+    })();
+  }, []);
 
   const handleStatusChange = async (id: string, status: AppStatus) => {
     try {

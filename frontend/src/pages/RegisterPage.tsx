@@ -19,7 +19,7 @@ export default function RegisterPage() {
       const data = await doLogin(email, password);
       login(data.access_token, data.user_name);
       navigate("/search");
-    } catch (err) {
+    } catch (err: unknown) {
       const e = err as { response?: { data?: { detail?: string } } };
       setError(e.response?.data?.detail || "Registration failed");
     }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { getStats, getWeeklyStats, getStaleApps } from "../api/applications";
 import type { AppStatus } from "../types";
 import { STATUS_COLORS } from "../types";
@@ -29,26 +29,24 @@ export default function StatsPage() {
   const [stale, setStale] = useState<StaleApp[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchAll = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [s, w, st] = await Promise.all([
-        getStats(),
-        getWeeklyStats(),
-        getStaleApps()
-      ]);
-      setSummary(s.data);
-      setWeekly(w.data);
-      setStale(st.data.applications);
-    } catch {
-      console.error("Failed to fetch stats");
-    }
-    setLoading(false);
-  }, []);
-
   useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
+    void (async () => {
+      setLoading(true);
+      try {
+        const [s, w, st] = await Promise.all([
+          getStats(),
+          getWeeklyStats(),
+          getStaleApps()
+        ]);
+        setSummary(s.data);
+        setWeekly(w.data);
+        setStale(st.data.applications);
+      } catch {
+        console.error("Failed to fetch stats");
+      }
+      setLoading(false);
+    })();
+  }, []);
 
   if (loading) return (
     <div className="p-6 text-center text-gray-500">Loading stats...</div>

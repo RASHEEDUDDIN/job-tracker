@@ -1,5 +1,14 @@
-import { useContext } from "react";
-import { AuthContext } from "./AuthContext";
+import { createContext, useContext } from "react";
+
+export interface AuthContextType {
+  token: string | null;
+  userName: string | null;
+  isLoggedIn: boolean;
+  login: (token: string, name: string) => void;
+  logout: () => void;
+}
+
+export const AuthContext = createContext<AuthContextType | null>(null);
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
